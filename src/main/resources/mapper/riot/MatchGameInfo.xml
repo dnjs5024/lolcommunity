@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.MatchGameInfoMapper">
+  
+  <sql id="matchGameCols">
+	match_Game_ID,
+	match_Game_TEAM,
+	match_Game_WIN,
+	CHAMPION_INFO_KEY,
+	match_Game_SPELL1,
+	match_Game_SPELL2,
+	match_Game_POSITION,
+	match_Game_PARTICIPANT,
+	match_Game_KILLS,
+	match_Game_DEATHS,
+	match_Game_ASSISTS,
+	PK_RUNE_PAGE,
+	PK_MATCH_ITEM_SLOT,
+	TOTAL_DAMAGE,
+	VISION_WARDS_BOUGHT,
+	WARDS_PLACED,
+	WARDS_KILLED,
+	match_Game_CS,
+	match_Game_CREATION,
+	match_Game_TIME,
+	SUMMONER_INFO_ID,
+	match_Game_LEVEL
+  </sql>
+  
+  <select id="selectMatchGameInfoList" parameterType="MatchGameInfoVO" resultType="MatchGameInfoVO">
+   select * from match_game_info
+  </select>
+    <select id="selectMatchGameId" parameterType="long" resultType="MatchGameInfoVO">
+   select * from match_game_info where MATCH_GAME_ID = #{matchGameId}
+  </select>
+      <select id="totalMatchGameByName" parameterType="string" resultType="int">
+   select count(1) 
+   from match_game_info mi,summoner_info si 
+   where mi.SUMMONER_INFO_ID = si.SUMMONER_INFO_ID and si.SUMMONER_INFO_name = #{summoner}
+  </select>
+  
+   <select id="selectMatchGameListById" parameterType="SummonerInfoVO" resultType="MatchGameInfoVO">
+   select MATCH_GAME_ID from (select rownum cnt , mgi.* from 
+	(select MATCH_GAME_ID from match_game_info where SUMMONER_INFO_ID=#{summonerInfoId} 
+	order by MATCH_GAME_CREATION desc) mgi where rownum &lt;= #{page.lastPageNo})where cnt &gt;= #{page.startPageNo}
+  </select>
+ 
+  <insert id="insertMatchGameInfo"  parameterType="MatchGameInfoVO">
+  	insert into match_game_info(<include refid="matchGameCols"/>) values(
+		#{matchGameId},
+		#{matchGameTeam},
+		#{matchGameWin},
+		#{championInfoKey},
+		#{matchGameSpell1},
+		#{matchGameSpell2},
+		#{matchGamePosition},
+		#{matchGameParticipant},
+		#{matchGameKills},
+		#{matchGameDeaths},
+		#{matchGameAssists},
+		#{pkRunePage},
+		#{pkMatchItemSlot},
+		#{totalDamage},
+		#{visionWardsBought},
+		#{wardsPlaced},
+		#{wardsKilled},
+		#{matchGameCs},
+		#{matchGameCreation},
+		#{matchGameTime},
+		#{summonerInfoId},
+		#{matchGameLevel}
+		 )
+  </insert> 
+</mapper>

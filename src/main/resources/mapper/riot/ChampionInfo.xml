@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.ChampionInfoMapper">
+  <sql id="championInfoCols">
+  	champion_info_id, champion_info_name, champion_info_key
+  </sql>
+  
+  <select id="selectChampionInfoList" parameterType="ChampionInfoVO" resultType="ChampionInfoVO">
+   select * from champion_info order by champion_info_name asc
+  </select>
+  
+  <select id="selectChampionInfoPosition" parameterType="String" resultType="ChampionInfoVO">
+   select ci.* from champion_info ci, (select * from (select CHAMPION_INFO_KEY cik ,MATCH_GAME_POSITION,count(1) cnt
+    from(select  MATCH_TIER,MATCH_GAME_WIN,CHAMPION_INFO_KEY,MATCH_GAME_POSITION
+     from match_info,match_game_info where match_id = match_game_id) 
+      GROUP BY CHAMPION_INFO_KEY,MATCH_GAME_POSITION order by CHAMPION_INFO_KEY) where MATCH_GAME_POSITION = #{matchGamePosition}  and cnt &gt; 5)  
+      where ci.champion_info_key = cik order by champion_info_name asc
+  </select>
+  
+  
+  <select id="selectChampionInfo" resultType="ChampionInfoVO" >
+   select <include refid="championInfoCols"/> from champion_info
+   <where>
+   	<if test="championInfoKey != 0"> champion_info_key=#{championInfoKey}</if>
+	<if test="championInfoId != null"> champion_info_id=#{championInfoId}</if>
+   </where>
+  </select>
+ 
+  <insert id="insertChampionInfo"  parameterType="ChampionInfoVO">
+  	insert into champion_info(<include refid="championInfoCols"/>) values(
+  	#{championInfoId},#{championInfoName},#{championInfoKey})
+  </insert> 
+</mapper>

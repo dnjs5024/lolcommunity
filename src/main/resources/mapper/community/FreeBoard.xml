@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.community.mapper.FreeBoardMapper">
+	<insert id="writeFreeBoard" parameterType="FreeBoardVO">
+		<selectKey keyColumn="free_num" keyProperty="freeNum" order="BEFORE" resultType="int">
+			SELECT sql_free_num.nextval from dual
+		</selectKey>
+		
+		insert into free_board(user_num,free_num,free_title,free_content,
+		<if test="freeFilepath != null or freeFilepath != ''">
+		free_filepath,</if>
+		<if test="freeFilename != null or freeFilename != ''">
+		free_filename,</if>free_join)
+		
+		values(#{userNum},#{freeNum},#{freeTitle},#{freeContent},
+		<if test="freeFilepath != null or freeFilepath != ''">
+		#{freeFilepath},</if>
+		<if test="freeFilename != null or freeFilename != ''">
+		#{freeFilename},</if>
+		TO_CHAR(SYSDATE,'YYYY-MM-DD'))
+	</insert>
+	
+	<select id="selectFreeList" resultType="FreeBoardVO" parameterType="FreeBoardVO">
+		SELECT * FROM(
+		SELECT ROWNUM rn,fb.tag_cnt,fb.user_nick,fb.USER_NUM, fb.FREE_NUM, fb.FREE_TITLE,fb.FREE_FILEPATH,fb.FREE_FILENAME,fb.FREE_JOIN,fb.FREE_MODIFI,fb.FREE_CNT from(
+		SELECT  ui.USER_NICK ,fb.* from (SELECT fb2.*,(SELECT COUNT(*) FROM tag_table tt WHERE tt.free_num=fb2.free_num) tag_cnt FROM free_board fb2) fb, user_info ui
+		
+		
+		<where>		
+		 ui.user_num = fb.user_num
+		 <if test="#{type}!=null">
+				 <choose>
+		 			<when test="type == 'T'.toString()">
+		   		and (free_title like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'C'.toString()">
+		   		and (free_content like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'W'.toString()">
+		   		and (user_nick like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'TC'.toString()">
+		   		and (free_title like '%'||#{keyword}||'%' or free_content like '%'||#{  }||'%')
+		 			</when>
+				 </choose>
+		 </if>
+		  ORDER by free_num DESC)fb 
+		  </where>	
+		 WHERE ROWNUM &lt;= #{page.endRow})where rn &gt;=#{page.startRow}
+	</select>
+	
+	<select id ="selectFreeNum" resultType="int">
+		select count(1) from free_board
+	</select>
+	<select id ="selectSearchSize" resultType="int">
+
+		select count(1) from (select ui.USER_NICK,fb.* from free_board fb, user_info ui 
+		<where>		
+		 ui.user_num = fb.user_num
+		 <if test="#{type}!=null">
+				 <choose>
+		 			<when test="type == 'T'.toString()">
+		   		and (free_title like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'C'.toString()">
+		   		and (free_content like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'W'.toString()">
+		   		and (user_nick like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'TC'.toString()">
+		   		and (free_title like '%'||#{keyword}||'%' or free_content like '%'||#{  }||'%')
+		 			</when>
+				 </choose>
+		 </if>
+		  </where>	
+		  )
+	</select>
+	
+	<select id="selectFreeOn" resultType="FreeBoardVO" parameterType="FreeBoardVO">
+		select a.*,(SELECT COUNT(*) FROM tag_table tt WHERE tt.free_num = #{freeNum}) tag_cnt
+		<if test='userNum != null and userNum != 0'>
+		,(select count(1) from like_table lt
+		where lt.free_num = a.free_num
+		and lt.user_num = #{userNum}) as "like"
+		</if>
+		 from(SELECT fb.*,ui.user_nick FROM free_board fb , user_info ui where fb.user_num = ui.user_num) a where free_num = #{freeNum}
+	</select>
+	
+	<delete id="deleteFreeBoard" parameterType="FreeBoardVO">
+		delete free_board where free_num = #{freeNum}
+	</delete>
+	
+	<delete id ="deleteFreeBoardCnt" parameterType="FreeBoardVO">
+		delete free_cnt where free_num = #{freeNum}
+	</delete>
+	
+	<update id="updateFreeBoard" parameterType="FreeBoardVO">
+		update  free_board set free_title = #{freeTitle} , free_content = #{freeContent},
+		<if test = "freeFilepath != null or freeFilepath != ''">free_filepath = #{freeFilepath},</if>
+		 free_join = TO_CHAR(SYSDATE,'YYYY-MM-DD') where free_num = #{freeNum}
+	</update>
+	
+	<update id="freeboardCnt" parameterType="FreeBoardVO">
+		update free_board set free_cnt = free_cnt +1 where free_num =#{freeNum}
+	</update>
+	
+	<update id="freeboardTagCnt" parameterType="TagTableVO">
+		update free_board set tag_cnt = tag_cnt +1 where free_num = #{freeNum}
+	</update>
+	
+	<update id="freeboardTagCntDelete" parameterType="TagTableVO">
+		update free_board set tag_cnt = tag_cnt -1 where free_num = #{freeNum}
+	</update>
+	
+	<delete id ="deleteFreeBoardUser" parameterType="UserInfoVO">
+		delete free_board where user_num = #{userNum}
+	</delete>
+	
+	<select id="selectFreeNumUser" parameterType="UserInfoVO" resultType="int">
+	 	SELECT count(1) from free_board where USER_NUM = #{userNum}
+	</select>
+	
+	<select id="selectUserFreeList" parameterType="UserInfoVO" resultType="FreeBoardVO">
+		SELECT * FROM 
+		(SELECT ROWNUM rn, freeBoard.* FROM 
+		(SELECT fb2.free_num,free_title,free_join,free_cnt , 
+		(SELECT COUNT(*) FROM tag_table tt WHERE tt.free_num=fb2.free_num) tag_cnt ,
+		(SELECT count(*) from like_table lt where lt.free_num = fb2.FREE_NUM)like_cnt FROM free_board fb2 where USER_NUM = #{userNum})freeBoard where ROWNUM &lt;= #{page.endRow}) where rn &gt;=#{page.startRow}
+	</select>
+	
+	<select id="selectUserFreeCnt" parameterType="UserInfoVO" resultType="int">
+		SELECT COUNT(1) FROM(SELECT fb2.free_num,free_title,free_join,free_cnt , (SELECT COUNT(*) FROM tag_table tt WHERE tt.free_num=fb2.free_num) tag_cnt ,(SELECT count(*) from like_table lt where lt.free_num = fb2.FREE_NUM)like_cnt FROM free_board fb2 where USER_NUM = #{userNum})
+	</select>
+	<select id="selectNewList" resultType="FreeBoardVO">
+		select rownum ,a.* from(select free_title,free_num from free_board where FREE_JOIN=TO_CHAR(SYSDATE,'YYYY-MM-DD')ORDER by free_num DESC)a where rownum &lt;= 8
+	</select>
+	<select id="selectFreeFilePath" parameterType="FreeBoardVO" resultType="FreeBoardVO">
+		select FREE_FILEPATH from free_board where free_num = #{freeNum}
+	</select>
+	<select id="selectBestFreeList" parameterType="PageVO" resultType="FreeBoardVO">
+		select a.*,rownum from(select rownum ,a.FREE_TITLE, a.FREE_NUM, a.FREE_JOIN from(SELECT FREE_TITLE, FREE_NUM, FREE_JOIN FROM "ADMIN".FREE_BOARD where free_join>=TO_CHAR(sysdate-7,'YYYY-MM-DD') ORDER by free_join desc)a,
+		(select a.free_num from(SELECT FREE_NUM,count(1)as like_num FROM LIKE_TABLE  GROUP BY free_num)a where a.like_num>=1)b where a.free_num=b.Free_num and rownum&gt;=#{page.startRow})a where rownum&lt;=#{page.endRow}
+	</select>
+  	<select id="selectBestFreeListCount" resultType="int">
+  	 select count(1) from (select a.FREE_TITLE, a.FREE_NUM, a.FREE_JOIN from(SELECT FREE_TITLE, FREE_NUM, FREE_JOIN FROM "ADMIN".FREE_BOARD where free_join>=TO_CHAR(sysdate-7,'YYYY-MM-DD') ORDER by free_join desc)a,
+	(select a.free_num from(SELECT FREE_NUM,count(1)as like_num FROM LIKE_TABLE  GROUP BY free_num)a where a.like_num>=1)b where a.free_num=b.Free_num)
+  	</select>
+</mapper>

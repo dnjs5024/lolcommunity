@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.MatchInfoMapper">
+  
+  <select id="selectMatchInfoList" parameterType="MatchInfoVO"  resultType="MatchInfoVO">
+   select *from match_info <if test="matchTier != null"> where match_tier=#{matchTier}</if>
+  </select>
+  
+  <insert id="insertMatchInfo"  parameterType="MatchInfoVO">
+  	insert into match_info values(
+  	#{matchTier},#{matchId}
+  	)
+  </insert> 
+</mapper>

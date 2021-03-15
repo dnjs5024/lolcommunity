@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.community.mapper.FreeCnt">
+	<insert id="freeAddCnt" parameterType="FreeCntVO">
+	insert into free_cnt values(#{sessionKey},#{freeBoard.freeNum})
+	
+	</insert>
+	
+	<select id="selectAddCnt" parameterType="FreeCntVO" resultType="int">
+	select count(1) from free_cnt where SESSION_KEY = #{sessionKey} and free_num = #{freeBoard.freeNum}
+	</select>
+	
+	<delete id="deleteFreeCnt" >
+	delete free_cnt where 1=1
+	</delete>
+	
+	
+	
+</mapper>

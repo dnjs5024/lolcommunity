@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.SummonerSpellMapper">
+  
+  <select id="selectSummonerSpell" parameterType="int" resultType="SummonerSpellVO">
+   select *from summoner_spell where summoner_spell_key=#{summonerSpellKey}
+  </select>
+  
+  <insert id="insertSummonerSpell"  parameterType="SummonerSpellVO">
+  	insert into summoner_spell(summoner_spell_name,summoner_spell_desc,summoner_spell_id,summoner_spell_key
+  	) values(
+  	#{summonerSpellName},#{summonerSpellDesc},#{summonerSpellId},#{summonerSpellKey}
+  	)
+  </insert> 
+</mapper>

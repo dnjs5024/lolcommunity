@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.ChampionSpellMapper">
+  
+  <select id="selectChampionSpellList" parameterType="ChampionInfoVO" resultType="ChampionSpellVO">
+   select *from CHAMPION_SPELL where CHAMPION_INFO_KEY=#{championInfoKey}
+  </select>
+  
+  <insert id="insertChampionSpell"  parameterType="ChampionSpellVO">
+  	insert into champion_spell(champion_spell_cost,champion_spell_cooldown,champion_spell_range,champion_spell_name,
+  	champion_spell_id,champion_spell_description,champion_spell_type,champion_info_key
+  	) values(
+  	#{championSpellCost, jdbcType=VARCHAR},#{championSpellCooldown, jdbcType=VARCHAR},#{championSpellRange, jdbcType=VARCHAR},
+  	#{championSpellName, jdbcType=VARCHAR},
+  	#{championSpellId, jdbcType=VARCHAR},#{championSpellDescription, jdbcType=VARCHAR},#{championSpellType},#{championInfoKey}
+  	
+  	)
+  </insert> 
+</mapper>

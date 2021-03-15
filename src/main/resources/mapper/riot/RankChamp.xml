@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.RankChampMapper">
+  
+  <select id="selectRankChampList" parameterType="HashMap" resultType="RankChampVO">
+    select wct.*, ctgc.total_game  from 
+ ( select CHAMPION_INFO_KEY,count(1) win_game,sum(MATCH_GAME_KILLS) kills,sum(MATCH_GAME_DEATHS) deaths, sum(MATCH_GAME_ASSISTS) assists 
+from(select * from (
+  select  MATCH_TIER,MATCH_GAME_WIN,CHAMPION_INFO_KEY,
+  MATCH_GAME_POSITION,MATCH_GAME_KILLS,MATCH_GAME_DEATHS,MATCH_GAME_ASSISTS
+ from match_info,match_game_info where match_id = match_game_id and match_game_win='win') where match_tier = #{tier} and MATCH_GAME_POSITION =#{position}) 
+ GROUP BY CHAMPION_INFO_KEY order by count(1) desc) wct,
+ ( select CHAMPION_INFO_KEY,count(1) total_game
+from(select * from (
+  select  MATCH_TIER,MATCH_GAME_WIN,CHAMPION_INFO_KEY,MATCH_GAME_POSITION
+ from match_info,match_game_info where match_id = match_game_id) where match_tier = #{tier} and MATCH_GAME_POSITION =#{position}) 
+ GROUP BY CHAMPION_INFO_KEY order by total_game desc) ctgc
+ where wct.CHAMPION_INFO_KEY = ctgc.CHAMPION_INFO_KEY and TOTAL_GAME &gt; 1
+  </select>
+  <select id="selectRankMatchTotal" parameterType="HashMap" resultType="int">
+    select count(*) match_total from (
+  select  match_tier,MATCH_GAME_POSITION
+ from match_info,match_game_info where match_id = match_game_id) where match_tier = #{tier} and MATCH_GAME_POSITION =#{position}
+  </select>
+ 
+ 
+  
+</mapper>

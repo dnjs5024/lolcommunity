@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.community.mapper.GuideBoardMapper">
+	<insert id="writeGuideBoard" parameterType="GuideBoardVO">
+		<selectKey keyColumn="guide_num" keyProperty="guideNum" order="BEFORE" resultType="int">
+			SELECT seq_guide_num.nextval from dual
+		</selectKey>
+		
+		insert into guide_board(user_num,guide_num,guide_title,guide_content,
+		<if test="guideFilepath != null or guideFilepath != ''">
+		guide_filepath,</if>
+		<if test="guideFilename != null or guideFilename != ''">
+		guide_filename,</if>guide_join)
+		
+		values(#{userNum},#{guideNum},#{guideTitle},#{guideContent},
+		<if test="guideFilepath != null or guideFilepath != ''">
+		#{guideFilepath},</if>
+		<if test="guideFilename != null or guideFilename != ''">
+		#{guideFilename},</if>
+		TO_CHAR(SYSDATE,'YYYY-MM-DD'))
+	</insert>
+	
+	<select id="selectGuideList" resultType="GuideBoardVO" parameterType="GuideBoardVO">
+		SELECT * FROM(
+		SELECT ROWNUM rn,gb.tag_cnt,gb.user_nick,gb.USER_NUM, gb.guide_NUM, gb.guide_TITLE,gb.guide_FILEPATH,gb.guide_FILENAME,gb.guide_JOIN,gb.guide_MODIFI,gb.guide_CNT from(
+		SELECT  ui.USER_NICK,gb.* from (SELECT gb2.*,(SELECT COUNT(*) FROM guide_tag_table tt WHERE tt.guide_num=gb2.guide_num)tag_cnt FROM guide_board gb2) gb, user_info ui
+		<where>		
+		 ui.user_num = gb.user_num
+		 <if test="#{type}!=null">
+				 <choose>
+		 			<when test="type == 'T'.toString()">
+		   		and (guide_title like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'C'.toString()">
+		   		and (guide_content like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'W'.toString()">
+		   		and (user_nick like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'TC'.toString()">
+		   		and (guide_title like '%'||#{keyword}||'%' or guide_content like '%'||#{  }||'%')
+		 			</when>
+				 </choose>
+		 </if>
+		  ORDER by guide_num DESC)gb 
+		  </where>	
+		 WHERE ROWNUM &lt;= #{page.endRow})where rn &gt;=#{page.startRow}
+	</select>
+	
+	<select id ="selectGuideNum" resultType="int">
+		select count(1) from guide_board
+	</select>
+	<select id ="selectSearchSize" resultType="int">
+
+		select count(1) from (select ui.USER_NICK,gb.* from guide_board gb, user_info ui 
+		<where>		
+		 ui.user_num = gb.user_num
+		 <if test="#{type}!=null">
+				 <choose>
+		 			<when test="type == 'T'.toString()">
+		   		and (guide_title like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'C'.toString()">
+		   		and (guide_content like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'W'.toString()">
+		   		and (user_nick like '%'||#{keyword}||'%')
+		 			</when>
+		 			<when test="type == 'TC'.toString()">
+		   		and (guide_title like '%'||#{keyword}||'%' or guide_content like '%'||#{  }||'%')
+		 			</when>
+				 </choose>
+		 </if>
+		  </where>	
+		  )
+	</select>
+	<select id="selectGuideOn" resultType="GuideBoardVO" parameterType="GuideBoardVO">
+		select a.*,(SELECT COUNT(*) FROM guide_tag_table tt WHERE tt.guide_num = #{guideNum}) tag_cnt
+		<if test='userNum != null and userNum != 0'>
+		,(select count(1) from guide_like_table lt
+		where lt.guide_num = a.guide_num
+		and lt.user_num = #{userNum}) as "like"
+		</if>
+		 from(SELECT fb.*,ui.user_nick FROM guide_board fb , user_info ui where fb.user_num = ui.user_num) a where guide_num = #{guideNum}
+	</select>
+	<delete id="deleteGuideBoard" parameterType="GuideBoardVO">
+		delete guide_board where guide_num = #{guideNum}
+	</delete>
+	
+	<delete id ="deleteGuideBoardCnt" parameterType="GuideBoardVO">
+		delete guide_cnt where guide_num = #{guideNum}
+	</delete>
+	
+	<update id="updateGuideBoard" parameterType="GuideBoardVO">
+		update  guide_board set guide_title = #{guideTitle} , guide_content = #{guideContent},
+		<if test = "guideFilepath != null or guideFilepath != ''">guide_filepath = #{guideFilepath},</if>
+		 guide_join = TO_CHAR(SYSDATE,'YYYY-MM-DD') where guide_num = #{guideNum}
+	</update>
+	
+	<update id="guideBoardCnt" parameterType="GuideBoardVO">
+		update guide_board set guide_cnt = guide_cnt +1 where guide_num =#{guideNum}
+	</update>
+	
+	<update id="guideBoardTagCnt" parameterType="TagTableVO">
+		update guide_board set tag_cnt = tag_cnt +1 where guide_num = #{guideNum}
+	</update>
+	
+	<update id="guideBoardTagCntDelete" parameterType="TagTableVO">
+		update guide_board set tag_cnt = tag_cnt -1 where guide_num = #{guideNum}
+	</update>
+		<select id="selectUserGuideList" parameterType="UserInfoVO" resultType="GuideBoardVO">
+	SELECT * FROM 
+	(SELECT ROWNUM rn, guideBoard.* FROM 
+	(SELECT fb2.guide_num,guide_title,guide_join,guide_cnt , 
+	(SELECT COUNT(*) FROM guide_tag_table tt WHERE tt.guide_num=fb2.guide_num) tag_cnt ,
+	(SELECT count(*) from guide_like_table lg where lg.guide_num = fb2.guide_NUM)like_cnt FROM guide_board fb2 where USER_NUM = #{userNum})guideBoard where ROWNUM &lt;= #{page.endRow}) where rn &gt;=#{page.startRow}
+	</select>
+	
+	<select id="selectUserGuideCnt" parameterType="UserInfoVO" resultType="int">
+	SELECT COUNT(1) FROM(SELECT fb2.guide_num,guide_title,guide_join,guide_cnt , (SELECT COUNT(*) FROM guide_tag_table tt WHERE tt.guide_num=fb2.guide_num) tag_cnt ,(SELECT count(*) from guide_like_table lt where lt.guide_num = fb2.guide_NUM)like_cnt FROM guide_board fb2 where USER_NUM = #{userNum})
+	</select>
+	<select id="selectNewList" resultType="GuideBoardVO">
+	select rownum ,a.* from(select guide_title,guide_num from guide_board where guide_JOIN=TO_CHAR(SYSDATE,'YYYY-MM-DD')ORDER by guide_num DESC)a where rownum &lt;= 8
+	</select>
+	
+	<select id="selectGuideNumUser" parameterType="UserInfoVO" resultType="int">
+	 	SELECT count(1) from guide_board where USER_NUM = #{userNum}
+	</select>
+	<select id="selectGuideFilePath" parameterType="GuideBoardVO" resultType="int">
+		 select GUIDE_FILEPATH from guide_board where guide_num = #{guideNum}
+	</select>
+	<select id="selectBestGuideList" resultType="GuideBoardVO">
+		select a.*,rownum from(select rownum ,a.guide_TITLE, a.guide_NUM, a.guide_JOIN from(SELECT guide_TITLE, guide_NUM, guide_JOIN FROM "ADMIN".guide_BOARD where guide_join>=TO_CHAR(sysdate-7,'YYYY-MM-DD') ORDER by guide_join desc)a,
+		(select a.guide_NUM from(SELECT guide_NUM,count(1)as like_num FROM guide_LIKE_TABLE  GROUP BY guide_NUM)a where a.guide_NUM>=1)b where a.guide_NUM=b.guide_NUM and rownum&gt;=#{page.startRow})a where rownum&lt;=#{page.endRow}
+  	</select>
+  	<select id="selectBestGuideeListCount" resultType="int">
+  	 select count(1) from (select a.GUIDE_TITLE, a.GUIDE_NUM, a.GUIDE_JOIN from(SELECT GUIDE_TITLE, GUIDE_NUM, GUIDE_JOIN FROM "ADMIN".GUIDE_BOARD where GUIDE_join>=TO_CHAR(sysdate-7,'YYYY-MM-DD') ORDER by GUIDE_join desc)a,
+	(select a.GUIDE_num from(SELECT GUIDE_NUM,count(1)as like_num FROM guide_LIKE_TABLE  GROUP BY GUIDE_num)a where a.like_num>=1)b where a.GUIDE_num=b.GUIDE_num)
+  	</select>
+</mapper>

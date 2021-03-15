@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.ChampionRotationMapper">
+	<sql id="championRotationCols">
+		champion_info_key, champion_rotation_key
+	</sql>
+	<select id="selectChampionRotation" resultType="ChampionInfoVO">
+		SELECT ci.* FROM champion_rotation cr, champion_info ci where cr.champion_info_key = 
+		ci.champion_info_key order by ci.CHAMPION_INFO_name
+	</select>
+	<insert id="insertChampionRotation" parameterType="int">
+			insert into champion_rotation(
+			<include refid="championRotationCols" />
+			) values(
+			#{freeChampionId},#{freeChampionId})
+	</insert>
+
+	<delete id="deleteChampionRotation">
+		delete from champion_rotation
+	</delete>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.MatchItemSlotMapper">
+  
+  <select id="selectMatchItemSlotList"  parameterType="MatchItemSlotVO" resultType="MatchItemSlotVO">
+   select * from match_item_slot
+  </select>
+   <select id="selectMatchItemSlotByKey"  parameterType="MatchItemSlotVO" resultType="MatchItemSlotVO">
+   select * from match_item_slot where PK_MATCH_ITEM_SLOT = #{pkMatchItemSlot}
+  </select>
+ 
+
+ 
+  <insert id="insertMatchItemSlot"  parameterType="MatchItemSlotVO" >
+   <selectKey keyProperty="pkMatchItemSlot" resultType="int" order="BEFORE">
+    select seq_match_item_slot.nextval FROM DUAL
+  </selectKey>
+  	insert into match_item_slot values(
+	 #{item0},
+	 #{item1},
+	 #{item2},
+	 #{item3},
+	 #{item4},
+	 #{item5},
+	 #{item6},
+	 seq_match_item_slot.currval
+		 )
+  </insert> 
+</mapper>

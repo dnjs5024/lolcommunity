@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.community.mapper.LikeTable">
+	<select id="selectCheck" parameterType="LikeVO" resultType="int">
+		select count(*) from like_table where free_num = #{freeNum} and user_num = #{userNum}
+	</select>
+	
+	<select id="selectCheckGuide" parameterType="LikeVO" resultType="int">
+		select count(*) from guide_like_table where guide_num = #{guideNum} and user_num = #{userNum}
+	</select>
+	
+	
+	<insert id="insertCheck" parameterType="LikeVO" >
+		insert into like_table values(#{freeNum},#{userNum})
+	</insert>
+	
+	<insert id="insertCheckGuide" parameterType="LikeVO">
+		insert into guide_like_table values(#{guideNum} , #{userNum})
+	</insert>
+	
+	
+	<delete id="deleteCheck" parameterType="LikeVO">
+		delete like_table where free_num = #{freeNum} and user_num = #{userNum}
+	</delete>
+	
+	<delete id="deleteCheckGuide" parameterType="LikeVO">
+		delete guide_like_table where guide_num = #{guideNum} and user_num = #{userNum}
+	</delete>
+	
+	<select id="checkCount" parameterType="LikeVO" resultType="int">
+		select count(*) from like_table where free_num = #{freeNum} 
+	</select>
+	
+	<select id="checkCountGuide" parameterType="LikeVO" resultType="int">
+		select count(*) from guide_like_table where guide_num = #{guideNum} 
+	</select>
+	
+	<delete id="deleteAll" parameterType="LikeVO">
+	 delete like_table where free_num=#{freeNum}
+	</delete>
+	<delete id="deleteGuideAll" parameterType="LikeVO">
+	 delete Guide_like_table where guide_num=#{guideNum}
+	</delete>
+	
+	
+	
+</mapper>

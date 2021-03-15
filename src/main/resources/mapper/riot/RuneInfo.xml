@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.RuneInfoMapper">
+  
+  <select id="selectRuneinfoList" resultType="RuneInfoVO">
+   select * from rune_info
+  </select>
+    <select id="selectRuneInfo" parameterType="int" resultType="RuneInfoVO">
+   select * from rune_info where RUNE_KEY = #{runeKey}
+  </select>
+ 
+  <insert id="insertRuneInfo"  parameterType="RuneInfoVO">
+  	insert into rune_info(
+  	 rune_name,rune_key,rune_img_path,
+  	 rune_id,rune_Desc
+  	)
+  	values(
+  		#{runeName},
+  		#{runeKey},
+  		#{runeImgPath},
+  		#{runeId},
+  		#{runeDesc}
+		)
+  </insert> 
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.riot.mapper.SummonerInfoMapper">
+  <sql id="summonerInfoCols">
+  	summoner_info_tier, summoner_info_rank, summoner_info_id,
+  	summoner_info_name,summoner_info_point,summoner_info_wins,
+  	summoner_info_losses,summoner_info_mod,summoner_info_icon,
+  	summoner_info_level,summoner_info_acid
+  </sql>
+  
+  <select id="selectSummonerInfo" parameterType="String" resultType="SummonerInfoVO" >
+   select <include refid="summonerInfoCols"/> from summoner_info where  summoner_info_name = #{summonerInfoName}
+  </select>
+  
+  <select id="selectSummonerInfoList" parameterType="String" resultType="SummonerInfoVO" >
+   select <include refid="summonerInfoCols"/> from summoner_info
+  </select>
+  
+ 
+  <insert id="insertSummonerInfo"  parameterType="SummonerInfoVO">
+  	insert into summoner_info(<include refid="summonerInfoCols"/>) values(
+  	#{summonerInfoTier},#{summonerInfoRank},#{summonerInfoId},#{summonerInfoName},
+  	#{summonerInfoPoint},#{summonerInfoWins},#{summonerInfoLosses},#{summonerInfoMod},
+  	#{summonerInfoIcon},#{summonerInfoLevel},#{summonerInfoAcid}
+  	)
+  </insert> 
+  
+  
+  <update id="updateSummonerInfo" parameterType="SummonerInfoVO">
+  	update summoner_info set SUMMONER_INFO_TIER=#{summonerInfoTier},SUMMONER_INFO_RANK=#{summonerInfoRank},
+	SUMMONER_INFO_NAME=#{summonerInfoName},SUMMONER_INFO_POINT=#{summonerInfoPoint},SUMMONER_INFO_WINS=#{summonerInfoWins},
+	SUMMONER_INFO_LOSSES=#{summonerInfoLosses},SUMMONER_INFO_ICON=#{summonerInfoIcon},
+	SUMMONER_INFO_LEVEL=#{summonerInfoLevel},SUMMONER_INFO_MOD=#{summonerInfoMod},SUMMONER_INFO_ACID=#{summonerInfoAcid} where SUMMONER_INFO_id=#{summonerInfoId}
+  </update>
+  
+</mapper>
