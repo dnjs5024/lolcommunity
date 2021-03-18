@@ -12,7 +12,7 @@
 
 ● 기술
 
--view관련 : Java , spring boot, ajax, jquery, lombok
+-view관련 : Java , spring boot, ajax, jquery, lombok, html, css
 
 -db관련 : oralce, mybatis,hikari cp
 
