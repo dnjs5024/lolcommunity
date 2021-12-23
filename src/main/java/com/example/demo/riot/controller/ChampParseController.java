@@ -41,6 +41,8 @@ public class ChampParseController {
 	@PostMapping("/spell")
 	public List<ChampionSpellVO> doChampionSpells(ChampionInfoVO civ) {
 		log.info("{}",civ);
+		List<ChampionSpellVO>cs1 = cs.champSpells(civ);
+		log.info("{}",cs1);
 		return cs.champSpells(civ);
 	}
 	

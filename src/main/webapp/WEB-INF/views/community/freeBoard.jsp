@@ -509,6 +509,7 @@ function getNews(cnt){
  	type :'POST',
  	data : { cnt : cnt },
  	success:function(res){
+ 		console.log(res);
  		for(var idx in res){
  			
  		var col =res[idx];	

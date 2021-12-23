@@ -12,7 +12,7 @@ import com.example.demo.riot.vo.SummonerInfoVO;
 public interface MatchGameInfoMapper {
 	int insertMatchGameInfo (MatchGameInfoVO matchGame);
 	List<MatchItemSlotVO> selectMatchGameInfoList (MatchGameInfoVO matchGame);
-	List<MatchGameInfoVO> selectMatchGameId (long matchGameId);
+	List<MatchGameInfoVO> selectMatchGameId (String matchGameId);
 	List<MatchGameInfoVO> selectMatchGameListById (SummonerInfoVO summoner);
 	int totalMatchGameByName(String summoner);
 	

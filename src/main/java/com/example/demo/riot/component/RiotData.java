@@ -41,10 +41,11 @@ public class RiotData {
 		return null;
 	}
 	public String getReadData(String urlStr) {
-		String X_Riot_Token = "RGAPI-6e565cd0-a828-494d-afc3-551c730cb215";
+		String X_Riot_Token = "RGAPI-2a115850-f1be-474f-bf51-bbb98b3b8314";
 		URL url;
 		try {
 			url = new URL(urlStr);
+			
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			con.setRequestProperty("X-Riot-Token", X_Riot_Token);

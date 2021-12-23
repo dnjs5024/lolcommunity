@@ -71,7 +71,6 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 				MatchItemSlotVO mis = new MatchItemSlotVO();
 				mis.setPkMatchItemSlot(matchGame.getPkMatchItemSlot());
 				mis= mism.selectMatchItemSlotByKey(mis);
-				
 				RunePageVO rpv = new RunePageVO();
 				rpv.setPkRunePage(matchGame.getPkRunePage());
 				rpv = rpm.selectRunePageByPage(rpv);
@@ -113,7 +112,6 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 				RunePageVO rpv = new RunePageVO();
 				rpv.setPkRunePage(matchGame.getPkRunePage());
 				rpv = rpm.selectRunePageByPage(rpv);
-				
 				summonerInfo.put("rune1",rim.selectRuneInfo(rpv.getPerk0()));
 				summonerInfo.put("rune2",rim.selectRuneInfo(rpv.getPerkSubStyle()));
 				summonerInfo.put("spell1",ssm.selectSummonerSpell(matchGame.getMatchGameSpell1()));
@@ -144,18 +142,17 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 	}
 	
 	public SummonerInfoVO getSummoner(String summoner){
-		log.info("name=>{}",summoner);
 		String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+summoner;
 		ObjectMapper om = new ObjectMapper();
 		SummonerInfoVO siv = new SummonerInfoVO();
 		try {
 			Map<String,Object> summonerInfo =  om.readValue(rd.getReadData(url), Map.class);
-			log.info("summonerInfo=>{}",summonerInfo);
+		
 			if(summonerInfo.get("status") != null) {//오류가 발생하면
 				return null;
 			}
 			siv.setSummonerInfoId(summonerInfo.get("id").toString());
-			siv.setSummonerInfoAcid(summonerInfo.get("accountId").toString());
+			siv.setSummonerInfoAcid(summonerInfo.get("puuid").toString());
 			siv.setSummonerInfoName(summoner);
 			if((int)summonerInfo.get("profileIconId")<0) {
 				siv.setSummonerInfoIcon(0);
@@ -197,7 +194,7 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 		List<List<Map<String,Object>>> gameLists = new ArrayList<>();
 		for(MatchGameInfoVO game : games) { //10개씩 게임 데이터 분석
 			List<Map<String,Object>> gameList = new ArrayList<>();
-			long matchGameId = game.getMatchGameId();
+			String matchGameId = game.getMatchGameId();
 			List<MatchGameInfoVO> matchGame = mgim.selectMatchGameId(matchGameId);
 			gameList = matchGameParse(matchGame, summoner.getSummonerInfoId());
 			gameLists.add(gameList);
@@ -216,10 +213,10 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 			long timeValue = summonerInfo.getSummonerInfoMod();
 			Date date = new Date();
 			long today = date.getTime();
-			log.info(" 다시!!{}!!!",today - timeValue);
+			
 			long betweenTime = (long) Math.floor( (today - timeValue) / 1000/ 60);
 			if(betweenTime<6 && cnt !=0) {
-				log.info("6분후에 다시!!{}!!!",betweenTime);
+				
 				return;
 			}else{
 				summonerInfo.setSummonerInfoMod(today);
@@ -227,25 +224,26 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 			}
 			
 		}
-		log.info("!!!{}!!!",summonerInfo.getSummonerInfoAcid());
-		String url = "https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/"+summonerInfo.getSummonerInfoAcid()+"?queue=420";
+		
+		String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+summonerInfo.getSummonerInfoAcid()+
+				"/ids";
 		ObjectMapper om = new ObjectMapper();
 		List<List<MatchGameInfoVO>> lMatchGame = new ArrayList<>();
 		try {
-			Map<String,Object> matchIds = om.readValue(rd.getReadData(url), Map.class);
-			List<Map<String,Object>> matches = (List<Map<String, Object>>) matchIds.get("matches");
-			if(matches==null) {
+			List<String> list = om.readValue(rd.getReadData(url), List.class);
+
+			if(list==null) {
 				return;
 			}
-			for(Map<String,Object> match : matches) {
+			for(String match : list) {
 				List<MatchGameInfoVO> matchGame = new ArrayList<>();
-				long matchId = (long) match.get("gameId"); // 
+				String matchId = match; // 
 				matchGame = mim.selectMatchGameId(matchId);
 				if(matchGame.size() != 0) {
 					lMatchGame.add(matchGame);
 					continue;
 				}else {
-					log.info("matchId==>{}",matchId);
+					
 					log.info("matchGame 없음 ==>{}",matchGame);
 					Thread.sleep(2400);
 					pmg.getMatchData(matchId);

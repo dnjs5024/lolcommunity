@@ -65,7 +65,7 @@ public class MatchData {
 				continue;
 			}
 			MatchInfoVO match = new MatchInfoVO();
-			match.setMatchId((long)map.get("gameId"));
+		//	match.setMatchId((long)map.get("gameId"));
 			match.setMatchTier(tier);
 			mim.insertMatchInfo(match);
 		}

@@ -8,7 +8,7 @@
    select * from rune_info
   </select>
     <select id="selectRuneInfo" parameterType="int" resultType="RuneInfoVO">
-   select * from rune_info where RUNE_KEY = #{runeKey}
+   select * from rune_info where rune_id = #{runeKey}
   </select>
  
   <insert id="insertRuneInfo"  parameterType="RuneInfoVO">

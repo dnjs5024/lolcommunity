@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class MatchGameInfoVO { 
-	private long matchGameId;
+	private String matchGameId;
 	private int matchGameTeam;
 	private String matchGameWin;
 	private int championInfoKey;

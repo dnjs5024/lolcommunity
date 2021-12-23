@@ -25,6 +25,7 @@ public class SummonerController {
 		log.info("summoner==>{}",summoner);
 		sis.parseGames(summoner);
 		return summoner;
+	
 	}
 
 }

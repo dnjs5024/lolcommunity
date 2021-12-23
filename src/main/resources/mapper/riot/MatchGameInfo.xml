@@ -32,7 +32,7 @@
   <select id="selectMatchGameInfoList" parameterType="MatchGameInfoVO" resultType="MatchGameInfoVO">
    select * from match_game_info
   </select>
-    <select id="selectMatchGameId" parameterType="long" resultType="MatchGameInfoVO">
+    <select id="selectMatchGameId" parameterType="String" resultType="MatchGameInfoVO">
    select * from match_game_info where MATCH_GAME_ID = #{matchGameId}
   </select>
       <select id="totalMatchGameByName" parameterType="string" resultType="int">

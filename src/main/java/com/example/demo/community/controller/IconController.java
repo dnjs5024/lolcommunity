@@ -23,6 +23,7 @@ public class IconController {
 	@GetMapping("/views/user/join")
 	public void gogo(Model model) {
 		model.addAttribute("icon",userInfoMapper.icons());
+		System.out.println(model);
 	}
 	
 	@GetMapping("/views/user/update")

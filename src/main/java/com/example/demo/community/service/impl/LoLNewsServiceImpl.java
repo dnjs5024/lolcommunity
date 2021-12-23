@@ -112,13 +112,10 @@ public class LoLNewsServiceImpl implements LoLNewsService {
             con.disconnect();
             ObjectMapper om = new ObjectMapper();
                Map<String,Object> map = om.readValue(sb.toString(),Map.class);
-               System.out.println(map);
                Iterator<String> it = map.keySet().iterator();
                while(it.hasNext()) {
                   String key = it.next();
                   Object value = map.get(key);
-                  System.out.println(key);
-                  System.out.println(value);
 //                  log.info("{}==>{}",key,value);
                }
                List<Map<String,Object>> list = (List<Map<String,Object>>)map.get("items");          
@@ -134,10 +131,5 @@ public class LoLNewsServiceImpl implements LoLNewsService {
             System.out.println(e);
         }
 		return rMap;
-	}
-	public static void main(String []args) {
-		LoLNewsService a = new LoLNewsServiceImpl();
-		
-		System.out.println(a.LoLNewsImg(1));
 	}
 }

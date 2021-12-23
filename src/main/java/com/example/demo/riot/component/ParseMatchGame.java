@@ -54,8 +54,8 @@ public class ParseMatchGame {
 		
 	}
 	
-	private List<MatchGameInfoVO> setPosition(long matchId) {
-		String url = "https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/"+matchId;
+	private List<MatchGameInfoVO> setPosition(String matchId) {
+		String url = "https://asia.api.riotgames.com/lol/match/v5/matches/"+matchId+"/timeline";
 		ObjectMapper om = new ObjectMapper();
 		Map<String,Object> rMap = new HashMap<>();
 		try {
@@ -265,144 +265,144 @@ public class ParseMatchGame {
 		return null;
 	}
 	
-	public void getMatchData(long matchId) {
-		String url = "https://kr.api.riotgames.com/lol/match/v4/matches/"+matchId;
+	public void getMatchData(String matchId) {
+		String url = "https://asia.api.riotgames.com/lol/match/v5/matches/"+matchId;
 		ObjectMapper om = new ObjectMapper();
 		Map<String,Object> rMap = new HashMap<>();
+		Map<String,Object>tMap = new HashMap();
+		Map<String,Object>idMap = new HashMap();
 		try {
 			rMap = om.readValue(rd.getReadData(url), Map.class);
+			idMap = (Map<String, Object>) rMap.get("metadata");	
+			List<String>idList = (List<String>) idMap.get("participants");
+			tMap = (Map<String, Object>) rMap.get("info");	
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		if(rMap.get("gameMode") == null ||  rMap.get("queueId")==null) {
+		if(tMap.get("gameMode") == null ||  tMap.get("queueId")==null) {
 			return;
 		}
-		int queueType = (int)rMap.get("queueId");
-		String gameMode = rMap.get("gameMode").toString();
+		int queueType = (int)tMap.get("queueId");
+		String gameMode = tMap.get("gameMode").toString();
 		if(!gameMode.equals("CLASSIC") || queueType != 420) {
 			log.info("gameMode==>{}",gameMode);
 			return;
 		}
 		List<MatchGameInfoVO> positionList =  setPosition(matchId);
-		long matchGameId = (long)rMap.get("gameId");
+		String matchGameId = matchId;
 		
-		List<Map<String, Object>> participantIdentities = (List<Map<String, Object>>) rMap.get("participantIdentities");
-		List<Map<String,Object>> participants = (List<Map<String,Object>>)rMap.get("participants");
-		for(Map<String,Object> participant : participants) {
-			Map<String,Object> stats = (Map<String,Object>)participant.get("stats");
+		List<Map<String,Object>> participants = (List<Map<String,Object>>)tMap.get("participants");
+		for(Map<String,Object> championInfo : participants) {
 			
 			MatchItemSlotVO mis = new MatchItemSlotVO();
-			int item0 = (int)stats.get("item0");
-			mis.setItem0(item0);
-			int item1 = (int)stats.get("item1");
-			mis.setItem1(item1);
-			int item2 = (int)stats.get("item2");
-			mis.setItem2(item2);
-			int item3 = (int)stats.get("item3");
-			mis.setItem3(item3);
-			int item4 = (int)stats.get("item4");
-			mis.setItem4(item4);
-			int item5 = (int)stats.get("item5");
-			mis.setItem5(item5);
-			int item6 = (int)stats.get("item6");
-			mis.setItem6(item6);
+			int item0 = (int)championInfo.get("item0");
+			mis.setMatchItem0(item0);
+			int item1 = (int)championInfo.get("item1");
+			mis.setMatchItem1(item1);
+			int item2 = (int)championInfo.get("item2");
+			mis.setMatchItem2(item2);
+			int item3 = (int)championInfo.get("item3");
+			mis.setMatchItem3(item3);
+			int item4 = (int)championInfo.get("item4");
+			mis.setMatchItem4(item4);
+			int item5 = (int)championInfo.get("item5");
+			mis.setMatchItem5(item5);
+			int item6 = (int)championInfo.get("item6");
+			mis.setMatchItem6(item6);
 			mism.insertMatchItemSlot(mis);
-		
-			int check;
-			for(int i=0; i<6;i++) {
-				check = (int) stats.get("perk"+i);
-				if(check <0 || check>10000) {
-					stats.put("perk"+i,0);
-				}
-				for(int j=1; j<4; j++) {
-					check = (int) stats.get("perk"+i+"Var"+j);
-					if(check <0 || check>10000) {
-						stats.put("perk"+i+"Var"+j,0);
-					}
-				}
-			}
-			
-			RunePageVO rp = new RunePageVO();
-			int perk0 = (int)stats.get("perk0");
-			rp.setPerk0(perk0);
-			int perk0Var1 = (int)stats.get("perk0Var1");
-			rp.setPerk0Var1(perk0Var1);
-			int perk0Var2 = (int)stats.get("perk0Var2");
-			rp.setPerk0Var2(perk0Var2);
-			int perk0Var3 = (int)stats.get("perk0Var3");
-			rp.setPerk0Var3(perk0Var3);
-			
-			int perk1 = (int)stats.get("perk1");
-			rp.setPerk1(perk1);
-			int perk1Var1 = (int)stats.get("perk1Var1");
-			rp.setPerk1Var1(perk1Var1);
-			int perk1Var2 = (int)stats.get("perk1Var2");
-			rp.setPerk1Var2(perk1Var2);
-			int perk1Var3 = (int)stats.get("perk1Var3");
-			rp.setPerk1Var3(perk1Var3);
-			
-			int perk2 = (int)stats.get("perk2");
-			rp.setPerk2(perk2);
-			int perk2Var1 = (int)stats.get("perk2Var1");
-			rp.setPerk2Var1(perk2Var1);
-			int perk2Var2 = (int)stats.get("perk2Var2");
-			rp.setPerk2Var2(perk2Var2);
-			int perk2Var3 = (int)stats.get("perk2Var3");
-			rp.setPerk2Var3(perk2Var3);
-			
-			int perk3 = (int)stats.get("perk3");
-			rp.setPerk3(perk3);
-			int perk3Var1 = (int)stats.get("perk3Var1");
-			rp.setPerk3Var1(perk3Var1);
-			int perk3Var2 = (int)stats.get("perk3Var2");
-			rp.setPerk3Var2(perk3Var2);
-			int perk3Var3 = (int)stats.get("perk3Var3");
-			rp.setPerk3Var3(perk3Var3);
-			
-			int perk4 = (int)stats.get("perk4");
-			rp.setPerk4(perk4);
-			int perk4Var1 = (int)stats.get("perk4Var1");
-			rp.setPerk4Var1(perk4Var1);
-			int perk4Var2 = (int)stats.get("perk4Var2");
-			rp.setPerk4Var2(perk4Var2);
-			int perk4Var3 = (int)stats.get("perk4Var3");
-			rp.setPerk0Var3(perk4Var3);
-			
-			int perk5 = (int)stats.get("perk5");
-			rp.setPerk5(perk5);
-			int perk5Var1 = (int)stats.get("perk5Var1");
-			rp.setPerk5Var1(perk5Var1);
-			int perk5Var2 = (int)stats.get("perk5Var2");
-			rp.setPerk5Var2(perk5Var2);
-			int perk5Var3 = (int)stats.get("perk5Var3");
-			rp.setPerk5Var3(perk5Var3);
 
-			
-			int perkPrimaryStyle = (int)stats.get("perkPrimaryStyle");
-			rp.setPerkPrimaryStyle(perkPrimaryStyle);
-			int perkSubStyle = (int)stats.get("perkSubStyle");
-			rp.setPerkSubStyle(perkSubStyle);
-			int statPerk0 = (int)stats.get("statPerk0");
+			//룬
+		
+	    		Map<String,Object>aMap = (Map<String, Object>) championInfo.get("perks");
+
+	    		List<Map<String,Object>>alist = (List<Map<String, Object>>) aMap.get("styles");	
+	    		int cnt=0;
+	    		RunePageVO rp = new RunePageVO();
+	    		for(Map<String,Object>map1:alist) {
+	    			List<Map<String,Object>>clist = (List<Map<String, Object>>)map1.get("selections");
+	    			if(cnt==0) {
+	    				int perkPrimaryStyle = (int)map1.get("style");
+		    			rp.setPerkPrimaryStyle(perkPrimaryStyle);
+	    			}else {
+	    				
+		    			int perkSubStyle = (int)map1.get("style");
+		    			rp.setPerkSubStyle(perkSubStyle);
+	    			}				
+	    			for(Map<String,Object>map2:clist) {
+	    			
+	    				 int perk0 = (int)map2.get("perk");
+	    				 int perk1 = (int)map2.get("var1");
+	    				 int perk2 = (int)map2.get("var2");
+	    				 int perk3 = (int)map2.get("var3");
+	    	
+	    				 switch(cnt) {
+	    				 case 0 :  {
+	    					 rp.setPerk0(perk0);
+	    					 rp.setPerk0Var1(perk1);
+	    					 rp.setPerk0Var2(perk2);
+	    					 rp.setPerk0Var3(perk3);
+	    				 }
+	    				
+	    				 case 1 : {
+	    					 rp.setPerk1(perk0);
+	    					 rp.setPerk1Var1(perk1);
+	    					 rp.setPerk1Var2(perk2);
+	    					 rp.setPerk1Var3(perk3);
+	    				 
+	    				 }
+	    				 case 2 :{
+	    					 rp.setPerk2(perk0);
+	    					 rp.setPerk2Var1(perk1);
+	    					 rp.setPerk2Var2(perk2);
+	    					 rp.setPerk2Var3(perk3);
+	    				 }
+	    				 case 3 :{
+	    					 rp.setPerk3(perk0);
+	    					 rp.setPerk3Var1(perk1);
+	    					 rp.setPerk3Var2(perk2);
+	    					 rp.setPerk3Var3(perk3);
+	    				 }
+	    				 case 4 :{
+	    					 rp.setPerk4(perk0);
+	    					 rp.setPerk4Var1(perk1);
+	    					 rp.setPerk4Var2(perk2);
+	    					 rp.setPerk4Var3(perk3);
+	    				 }
+	    				 case 5 :{
+	    					 rp.setPerk5(perk0);
+	    					 rp.setPerk5Var1(perk1);
+	    					 rp.setPerk5Var2(perk2);
+	    					 rp.setPerk5Var3(perk3);
+	    				 }
+	    				 }    		    				
+	    				 cnt++;
+	    			}
+	    		}
+	    	//파편 룬  
+    		int statPerk0 = (int)((Map<String,Object>)aMap.get("statPerks")).get("defense");
 			rp.setStatPerk0(statPerk0);
-			int statPerk1 = (int)stats.get("statPerk1");
+			int statPerk1 = (int)((Map<String,Object>)aMap.get("statPerks")).get("flex");
 			rp.setStatPerk1(statPerk1);
-			int statPerk2 = (int)stats.get("statPerk2");
+			int statPerk2 = (int)((Map<String,Object>)aMap.get("statPerks")).get("offense");
 			rp.setStatPerk2(statPerk2);
-			rp.setChampionInfoKey((int)participant.get("championId"));
+
+		
+			rp.setChampionInfoKey((int)championInfo.get("championId"));
 			rp.setMatchId(matchId);
 			rpm.insertRunePage(rp);
 			
-			Boolean win = (Boolean) stats.get("win");
+			Boolean win = (Boolean) championInfo.get("win");
 			String matchGameWin = "lose";
 			if(win) {
 				matchGameWin = "win";
 			}
 			MatchGameInfoVO mgi = new MatchGameInfoVO();
-			int matchGameParticipant = (int)participant.get("participantId");
+			
+			int matchGameParticipant = (int)championInfo.get("participantId");
 			mgi.setMatchGameParticipant(matchGameParticipant);
-			int matchGameSpell1 = (int)participant.get("spell1Id");
+			int matchGameSpell1 = (int)championInfo.get("summoner1Id");
 			mgi.setMatchGameSpell1(matchGameSpell1);
-			int matchGameSpell2 = (int)participant.get("spell2Id");
+			int matchGameSpell2 = (int)championInfo.get("summoner2Id");
 			mgi.setMatchGameSpell2(matchGameSpell2);
 			if(matchGameSpell1 == 11 || matchGameSpell2 == 11) {
 				mgi.setMatchGamePosition("JUNGLE");
@@ -416,49 +416,38 @@ public class ParseMatchGame {
 			}else {
 				mgi.setMatchGamePosition("none");
 			}
-			
-			for(Map<String, Object> participantIdentity : participantIdentities) {
-				Map<String, Object> summonerId= (Map<String, Object>) participantIdentity.get("player");
-				if(mgi.getMatchGameParticipant() == (int)participantIdentity.get("participantId")) {
-					if(summonerId.get("summonerId") != null) {
-						mgi.setSummonerInfoId(summonerId.get("summonerId").toString());
-					}else {
-						mgi.setSummonerInfoId(null);
-					}
-					
-				}
-			}
+			mgi.setSummonerInfoId(championInfo.get("summonerId").toString());
 			
 			mgi.setMatchGameId(matchGameId);
 			mgi.setMatchGameWin(matchGameWin);
-			int matchGameTeam = (int)participant.get("teamId");
+			int matchGameTeam = (int)championInfo.get("teamId");
 			mgi.setMatchGameTeam(matchGameTeam);
-			int championInfoKey = (int)participant.get("championId");
+			int championInfoKey = (int)championInfo.get("championId");
 			mgi.setChampionInfoKey(championInfoKey);
-			int matchGameKills = (int)stats.get("kills");
+			int matchGameKills = (int)championInfo.get("kills");
 			mgi.setMatchGameKills(matchGameKills);
-			int matchGameDeaths = (int)stats.get("deaths");
+			int matchGameDeaths = (int)championInfo.get("deaths");
 			mgi.setMatchGameDeaths(matchGameDeaths);
-			int matchGameAssists = (int)stats.get("assists");
+			int matchGameAssists = (int)championInfo.get("assists");
 			mgi.setMatchGameAssists(matchGameAssists);
 			
 			
-			int matchGameLevel = (int)stats.get("champLevel");
+			int matchGameLevel = (int)championInfo.get("champLevel");
 			mgi.setMatchGameLevel(matchGameLevel);
-			int totalDamage = (int)stats.get("totalDamageDealtToChampions");
+			int totalDamage = (int)championInfo.get("totalDamageDealtToChampions");
 			mgi.setTotalDamage(totalDamage);
-			int visionWardsBought = (int)stats.get("visionWardsBoughtInGame");
+			int visionWardsBought = (int)championInfo.get("visionWardsBoughtInGame");
 			mgi.setVisionWardsBought(visionWardsBought);
-			int wardsPlaced = (int)stats.get("wardsPlaced");
+			int wardsPlaced = (int)championInfo.get("wardsPlaced");
 			mgi.setWardsPlaced(wardsPlaced);
-			int wardsKilled = (int)stats.get("wardsKilled");
+			int wardsKilled = (int)championInfo.get("wardsKilled");
 			mgi.setWardsKilled(wardsKilled);
-			int totalMinionsKilled = (int)stats.get("totalMinionsKilled");
-			int neutralMinionsKilled = (int)stats.get("neutralMinionsKilled");
+			int totalMinionsKilled = (int)championInfo.get("totalMinionsKilled");
+			int neutralMinionsKilled = (int)championInfo.get("neutralMinionsKilled");
 			int matchGameCs = totalMinionsKilled+neutralMinionsKilled;	
 			mgi.setMatchGameCs(matchGameCs);
-			mgi.setMatchGameCreation((long)rMap.get("gameCreation"));
-			mgi.setMatchGameTime((int)rMap.get("gameDuration"));
+			mgi.setMatchGameCreation((long)tMap.get("gameCreation"));
+			mgi.setMatchGameTime((int)tMap.get("gameDuration"));
 			mgi.setPkMatchItemSlot(mis.getPkMatchItemSlot());
 			mgi.setPkRunePage(rp.getPkRunePage());
 			mgim.insertMatchGameInfo(mgi);

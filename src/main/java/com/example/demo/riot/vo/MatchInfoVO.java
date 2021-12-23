@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class MatchInfoVO {
 	private String matchTier;
-	private long matchId;
+	private String matchId;
 }

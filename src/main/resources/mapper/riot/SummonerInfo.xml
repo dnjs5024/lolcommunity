@@ -9,7 +9,7 @@
   	summoner_info_losses,summoner_info_mod,summoner_info_icon,
   	summoner_info_level,summoner_info_acid
   </sql>
-  
+
   <select id="selectSummonerInfo" parameterType="String" resultType="SummonerInfoVO" >
    select <include refid="summonerInfoCols"/> from summoner_info where  summoner_info_name = #{summonerInfoName}
   </select>

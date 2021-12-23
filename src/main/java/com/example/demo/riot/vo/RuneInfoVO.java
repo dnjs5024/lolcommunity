@@ -6,8 +6,8 @@ import lombok.Data;
 public class RuneInfoVO {
 	
 	private String runeName; 
-	private int runeKey;
+	private String runeKey;
 	private String runeImgPath;
-	private String runeId;
+	private int runeId;
 	private String runeDesc;
 }

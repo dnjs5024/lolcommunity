@@ -18,13 +18,13 @@
     select seq_match_item_slot.nextval FROM DUAL
   </selectKey>
   	insert into match_item_slot values(
-	 #{item0},
-	 #{item1},
-	 #{item2},
-	 #{item3},
-	 #{item4},
-	 #{item5},
-	 #{item6},
+	 #{matchItem0},
+	 #{matchItem1},
+	 #{matchItem2},
+	 #{matchItem3},
+	 #{matchItem4},
+	 #{matchItem5},
+	 #{matchItem6},
 	 seq_match_item_slot.currval
 		 )
   </insert> 

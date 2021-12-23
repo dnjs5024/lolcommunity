@@ -51,7 +51,7 @@ public class GameData {
 		
 	}
 	
-	public static List<MatchGameInfoVO> setPosition(long matchId) {
+	public static List<MatchGameInfoVO> setPosition(String matchId) {
 		String url = "https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/"+matchId;
 		ObjectMapper om = new ObjectMapper();
 		Map<String,Object> rMap = new HashMap<>();
@@ -261,7 +261,7 @@ public class GameData {
 		return null;
 	}
 	
-	public static String getMatchData(long matchId) {
+	public static String getMatchData(String matchId) {
 		String url = "https://kr.api.riotgames.com/lol/match/v4/matches/"+matchId;
 		ObjectMapper om = new ObjectMapper();
 		Map<String,Object> rMap = new HashMap<>();
@@ -282,7 +282,7 @@ public class GameData {
 		if(positionList ==null) {
 			return null;
 		}
-		long matchGameId = (long)rMap.get("gameId");
+		String matchGameId = (String) rMap.get("gameId");
 		
 		List<Map<String, Object>> participantIdentities = (List<Map<String, Object>>) rMap.get("participantIdentities");
 
@@ -295,19 +295,19 @@ public class GameData {
 			
 			MatchItemSlotVO mis = new MatchItemSlotVO();
 			int item0 = (int)stats.get("item0");
-			mis.setItem0(item0);
+			mis.setMatchItem0(item0);
 			int item1 = (int)stats.get("item1");
-			mis.setItem1(item1);
+			mis.setMatchItem1(item1);
 			int item2 = (int)stats.get("item2");
-			mis.setItem2(item2);
+			mis.setMatchItem2(item2);
 			int item3 = (int)stats.get("item3");
-			mis.setItem3(item3);
+			mis.setMatchItem3(item3);
 			int item4 = (int)stats.get("item4");
-			mis.setItem4(item4);
+			mis.setMatchItem4(item4);
 			int item5 = (int)stats.get("item5");
-			mis.setItem5(item5);
+			mis.setMatchItem5(item5);
 			int item6 = (int)stats.get("item6");
-			mis.setItem6(item6);
+			mis.setMatchItem6(item6);
 			mism.insertMatchItemSlot(mis);
 		
 			int check;
@@ -476,7 +476,7 @@ public class GameData {
 		for(String tier : list) {
 			miv.setMatchTier(tier);
 			List<MatchInfoVO> list2 = mim.selectMatchInfoList(miv);
-			long matchId = 0;
+			String matchId = "";
 			int cnt =1;
 			for(int i =0; i<200; i++) {
 				try {
@@ -484,7 +484,7 @@ public class GameData {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				matchId = list2.get(i).getMatchId();
+		//		matchId = list2.get(i).getMatchId();
 				log.info("matchId==>{}",matchId);
 				log.info("cnt==>{}{}",tier,cnt++);
 				log.info("result==>{}",getMatchData(matchId));

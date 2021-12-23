@@ -14,7 +14,7 @@
 			<ul>
 				<li class="active"><a href="/">Home</a></li>
 				<li><a href="/champion-list">챔피언 분석</a></li>
-				<li><a href="portfolio.html">랭킹</a></li>
+				<li><a href="/">랭킹</a></li>
 				<li><a href="/views/community/freeBoard">커뮤니티</a></li>
 
 			</ul>

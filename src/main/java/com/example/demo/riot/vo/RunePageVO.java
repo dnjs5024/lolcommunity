@@ -6,7 +6,7 @@ import lombok.Data;
 public class RunePageVO {
 	private int pkRunePage;
 	private int championInfoKey;
-	private long matchId;
+	private String matchId;
 	private int perk0;
 	private int perk0Var1;
 	private int perk0Var2;

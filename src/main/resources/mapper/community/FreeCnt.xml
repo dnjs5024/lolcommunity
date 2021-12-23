@@ -4,7 +4,7 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.community.mapper.FreeCnt">
 	<insert id="freeAddCnt" parameterType="FreeCntVO">
-	insert into free_cnt values(#{sessionKey},#{freeBoard.freeNum})
+	insert into free_cnt values(#{freeBoard.freeNum},#{sessionKey})
 	
 	</insert>
 	
