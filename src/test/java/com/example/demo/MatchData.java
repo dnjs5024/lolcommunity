@@ -34,6 +34,7 @@ public class MatchData {
 	
 	public void matchGame(String id, String tier) {
 		String encryptedSummonerId = id;
+		// summoner-v4: summonerId로 소환사 정보(puuid) 조회
 		String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/"+encryptedSummonerId;
 		ObjectMapper om = new ObjectMapper();
 		Map<String,Object> rMap = new HashMap<>();
@@ -42,32 +43,27 @@ public class MatchData {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
-		if(rMap.get("accountId") == null) {
+
+		if(rMap.get("puuid") == null) {
 			return;
 		}
-		String accountId = rMap.get("accountId").toString();
-		log.info(accountId);
-		url = "https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/"+accountId+"?queue=420";
-		om = new ObjectMapper();
-		rMap = new HashMap<>();
+		String puuid = rMap.get("puuid").toString();
+		log.info(puuid);
+		// match-v5: puuid로 매치 ID 목록 조회 (regional routing: asia)
+		url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+puuid+"/ids?queue=420";
 		try {
-			rMap = om.readValue(rd.getReadData(url), Map.class);
+			List<String> matchIds = om.readValue(rd.getReadData(url), List.class);
+			if(matchIds == null) {
+				return;
+			}
+			for(String matchId : matchIds) {
+				MatchInfoVO match = new MatchInfoVO();
+				match.setMatchId(matchId);
+				match.setMatchTier(tier);
+				mim.insertMatchInfo(match);
+			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
-		}
-		if(rMap.get("matches")==null) {
-			return;
-		}
-		List<Map<String,Object>> list = (List<Map<String, Object>>) rMap.get("matches");
-		for(Map<String,Object> map : list) {
-			if(Integer.parseInt(map.get("season").toString()) != 13) {
-				continue;
-			}
-			MatchInfoVO match = new MatchInfoVO();
-		//	match.setMatchId((long)map.get("gameId"));
-			match.setMatchTier(tier);
-			mim.insertMatchInfo(match);
 		}
 	}
 	

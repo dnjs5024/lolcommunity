@@ -11,12 +11,12 @@
 	
 	<insert id="insertUserInfo" parameterType="UserInfoVO">
 		<selectKey keyColumn="user_num" keyProperty="userNum" order="BEFORE" resultType="int">
-			select seq_user_num.nextval from dual
+			select nextval('seq_user_num')
 		</selectKey>
 	insert into user_info(<include refid="UserInfoCols"/>)
 	values(#{userNum},#{userId},#{userNick},
 	#{userEmail},
-	#{userPwd},TO_CHAR(SYSDATE,'YYYY-MM-DD'),#{userIcon}) 
+	#{userPwd},TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD'),#{userIcon}) 
 	</insert>
 	
 	<select id="checkUserId" parameterType="UserInfoVO" resultType="int">
@@ -55,7 +55,7 @@
 	</update>
 	
 	<delete id="userDelete" parameterType="UserInfoVO">
-		delete user_info where user_num = #{userNum}
+		delete from user_info where user_num = #{userNum}
 	</delete>
 	
 	<update id="userAddExperience" parameterType="UserInfoVO">

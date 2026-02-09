@@ -185,7 +185,7 @@ function selectOne(){
 }
 function loginCheck(){
 	
-	if($('#userNum').val() <=1){
+	if($('#userNum').val() < 1){
 		alert('로그인하세욧~');
 		location.href = '/views/community/freeBoard';
 	}

@@ -5,123 +5,120 @@
 <mapper namespace="com.example.demo.community.mapper.TagTable">
 	<insert id="insertTag" parameterType="TagTableVO">
 		<selectKey keyColumn="tag_num" keyProperty="tagNum" order="BEFORE" resultType="int">
-		select seq_tagnum.nextval from dual
+		select nextval('seq_tagnum')
 		</selectKey>
 	 insert into tag_table(tag_num ,user_num, free_num , tag_content , user_nick , tag_join ,<if test="ghostPwd != null || ghostPwd !=''"> ghost_pwd,</if> tag_modifi)
-	 values(#{tagNum} , #{userNum}, #{freeNum} , #{tagContent} , #{userNick} , TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') ,<if test="ghostPwd != null || ghostPwd !=''"> #{ghostPwd},</if> TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS'))
+	 values(#{tagNum} , #{userNum}, #{freeNum} , #{tagContent} , #{userNick} , TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') ,<if test="ghostPwd != null || ghostPwd !=''"> #{ghostPwd},</if> TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS'))
 	</insert>
-	
+
 	<insert id="insertGuideTag" parameterType="TagTableVO">
 		<selectKey keyColumn="guide_tag_num" keyProperty="guideTagNum" order="BEFORE" resultType="int">
-		select seq_guide_tagnum.nextval from dual
+		select nextval('seq_guide_tagnum')
 		</selectKey>
 		insert into guide_tag_table(guide_tag_num ,user_num, guide_num , tag_content , user_nick ,<if test="ghostPwd != null || ghostPwd !=''"> ghost_pwd,</if> tag_join  )
-	 values(#{guideTagNum} , #{userNum}, #{guideNum} , #{tagContent} , #{userNick}  ,<if test="ghostPwd != null || ghostPwd !=''"> #{ghostPwd},</if> TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') )
+	 values(#{guideTagNum} , #{userNum}, #{guideNum} , #{tagContent} , #{userNick}  ,<if test="ghostPwd != null || ghostPwd !=''"> #{ghostPwd},</if> TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') )
 	</insert>
 
 	<select id="selectTagOne" parameterType="TagTableVO" resultType="TagTableVO">
 	 select * from tag_table where tag_num = #{tagNum}
 	</select>
-	
+
 	<select id="selectGuideTagOne" parameterType="TagTableVO" resultType="TagTableVO">
 	 select * from guide_tag_table where guide_tag_num = #{guideTagNum}
 	</select>
-	
+
 	<delete id="deleteTag" parameterType="TagTableVO">
-	delete tag_table where tag_num = #{tagNum}
-	</delete> 
-	
+	delete from tag_table where tag_num = #{tagNum}
+	</delete>
+
 	<delete id="deleteGuideTag" parameterType="TagTableVO">
-	delete guide_tag_table where guide_tag_num = #{guideTagNum}
-	</delete> 
-	
-	
+	delete from guide_tag_table where guide_tag_num = #{guideTagNum}
+	</delete>
+
+
 	<update id="updateTag" parameterType="TagTableVO">
-	 update tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') where tag_num = #{tagNum} and user_nick = #{userNick}
+	 update tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') where tag_num = #{tagNum} and user_nick = #{userNick}
 	</update>
-	
+
 	<update id="updateGuideTag" parameterType="TagTableVO">
-	 update guide_tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') where guide_tag_num = #{guideTagNum} and user_nick = #{userNick}
+	 update guide_tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') where guide_tag_num = #{guideTagNum} and user_nick = #{userNick}
 	</update>
-	
+
 	<select id="selectTagList" parameterType="TagTableVO" resultType="TagTableVO">
-		  SELECT * FROM(SELECT ROWNUM rn , page.* FROM(SELECT * FROM tag_table where free_num =#{freeNum} order by tag_num)page WHERE ROWNUM &lt;= #{page.endRow}) WHERE rn &gt;= #{page.startRow}
+		  SELECT * FROM(SELECT ROW_NUMBER() OVER() AS rn , page.* FROM(SELECT * FROM tag_table where free_num =#{freeNum} order by tag_num)page) sub WHERE rn &lt;= #{page.endRow} AND rn &gt;= #{page.startRow}
 	</select>
 
 	<select id="selectGuideTagList" parameterType="TagTableVO" resultType="TagTableVO">
-			SELECT * FROM(SELECT ROWNUM rn , page.* FROM(SELECT * FROM guide_tag_table where guide_num =#{guideNum} order by guide_tag_num)page WHERE ROWNUM &lt;= #{page.endRow}) WHERE rn &gt;= #{page.startRow}
+			SELECT * FROM(SELECT ROW_NUMBER() OVER() AS rn , page.* FROM(SELECT * FROM guide_tag_table where guide_num =#{guideNum} order by guide_tag_num)page) sub WHERE rn &lt;= #{page.endRow} AND rn &gt;= #{page.startRow}
 	</select>
-	
+
 	<select id="selectTagCnt" parameterType="TagTableVO" resultType="int">
 	select count(*) from tag_table where free_num = #{freeNum}
 	</select>
-	
+
 	<select id="selectGhostPwd" resultType="int" >
 	select count(*)from tag_table where ghost_pwd = #{ghostPwd} and tag_num = #{tagNum}
 	</select>
-	
+
 	<select id="selectGuideGhostPwd" resultType="int" >
 	select count(*)from guide_tag_table where ghost_pwd = #{ghostPwd} and guide_tag_num = #{guideTagNum}
 	</select>
 
 	<update id="updateGhostTag">
-	 update tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') where ghost_pwd = #{ghostPwd} and tag_num = #{tagNum}
+	 update tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') where ghost_pwd = #{ghostPwd} and tag_num = #{tagNum}
 	</update>
-	
+
 	<update id="updateGuideGhostTag">
-	 update guide_tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(SYSDATE,'YYYY-MM-DD-HH24:MI:SS') where ghost_pwd = #{ghostPwd} and guide_tag_num = #{guideTagNum}
+	 update guide_tag_table set  tag_content = #{tagContent} , tag_join = TO_CHAR(CURRENT_TIMESTAMP,'YYYY-MM-DD-HH24:MI:SS') where ghost_pwd = #{ghostPwd} and guide_tag_num = #{guideTagNum}
 	</update>
-	
+
 	<delete id="deleteAll" parameterType="FreeBoardVO">
-	delete tag_table where free_num =#{freeNum}
+	delete from tag_table where free_num =#{freeNum}
 	</delete>
 	<delete id="deleteGuideAll" parameterType="GuideBoardVO">
-	delete guide_tag_table where guide_num =#{guideNum}
+	delete from guide_tag_table where guide_num =#{guideNum}
 	</delete>
-	
+
 	<update id = "updateTagNick" parameterType="UserInfoVO">
 	update tag_table set user_nick = #{userNick} where user_num = #{userNum}
 	</update>
-	
+
 	<delete id="deleteTagUser" parameterType="UserInfoVO">
-	delete tag_table where user_num = #{userNum}
+	delete from tag_table where user_num = #{userNum}
 	</delete>
-	
+
 	<select id="selectTagCntUser" parameterType="UserInfoVO" resultType="int">
 	SELECT count(*) from tag_table where USER_NUM =#{userNum}
 	</select>
-	
-	
-	
-	
-	
-	
+
+
+
+
 	<select id="selectTagUserList" parameterType="UserInfoVO" resultType="TagTableVO">
-	
-		SELECT * FROM (select ROWNUM, a.tag_num,a.free_title,a.tag_content,a.free_num,a.tag_join from
+
+		SELECT * FROM (select ROW_NUMBER() OVER() AS rn, a.tag_num,a.free_title,a.tag_content,a.free_num,a.tag_join from
 		(select fb.free_title,a.tag_num,a.tag_content,a.free_num,a.tag_join from free_board fb,(select free_num ,tag_num, tag_content , tag_join from tag_table where user_num =#{userNum})a where fb.free_num=a.free_num ORDER by free_num desc)a
-		WHERE rownum &lt;= #{page.endRow}) where rownum &gt;= #{page.startRow} 
-	
+		) sub WHERE rn &lt;= #{page.endRow} and rn &gt;= #{page.startRow}
+
 	</select>
 	<select id="selectGuideTagUserList" parameterType="UserInfoVO" resultType="TagTableVO">
-	
-		SELECT * FROM (select ROWNUM, a.guide_title,a.tag_content,a.guide_tag_num,a.guide_num,a.tag_join from
+
+		SELECT * FROM (select ROW_NUMBER() OVER() AS rn, a.guide_title,a.tag_content,a.guide_tag_num,a.guide_num,a.tag_join from
 		(select fb.guide_title,a.tag_content,a.guide_tag_num,a.guide_num,a.tag_join from guide_board fb,(select guide_tag_num,guide_num , tag_content , tag_join from guide_tag_table where user_num =#{userNum})a where fb.guide_num=a.guide_num ORDER by guide_num desc)a
-		WHERE rownum &lt;= #{page.endRow}) where rownum &gt;= #{page.startRow} 
-			
+		) sub WHERE rn &lt;= #{page.endRow} and rn &gt;= #{page.startRow}
+
 	</select>
 	<select id="selectGuideTagCntUser" parameterType="UserInfoVO" resultType="int">
 		SELECT count(*) from guide_tag_table where USER_NUM =#{userNum}
 	</select>
-		
-	<delete id="checkGuideTagDelete" parameterType="TagTableVO">
-	delete guide_tag_table where guide_tag_num = #{guideTagNum}
-	</delete>
-		
-	<delete id="checkFreeTagDelete" parameterType="TagTableVO">
-	delete tag_table where tag_num = #{tagNum}
-	</delete>
-	
 
-	
+	<delete id="checkGuideTagDelete" parameterType="TagTableVO">
+	delete from guide_tag_table where guide_tag_num = #{guideTagNum}
+	</delete>
+
+	<delete id="checkFreeTagDelete" parameterType="TagTableVO">
+	delete from tag_table where tag_num = #{tagNum}
+	</delete>
+
+
 </mapper>

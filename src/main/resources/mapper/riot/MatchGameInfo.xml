@@ -42,9 +42,10 @@
   </select>
   
    <select id="selectMatchGameListById" parameterType="SummonerInfoVO" resultType="MatchGameInfoVO">
-   select MATCH_GAME_ID from (select rownum cnt , mgi.* from 
-	(select MATCH_GAME_ID from match_game_info where SUMMONER_INFO_ID=#{summonerInfoId} 
-	order by MATCH_GAME_CREATION desc) mgi where rownum &lt;= #{page.lastPageNo})where cnt &gt;= #{page.startPageNo}
+   select MATCH_GAME_ID from match_game_info
+	where SUMMONER_INFO_ID=#{summonerInfoId}
+	order by MATCH_GAME_CREATION desc
+	LIMIT #{page.listRange} OFFSET #{page.startPageNo} - 1
   </select>
  
   <insert id="insertMatchGameInfo"  parameterType="MatchGameInfoVO">

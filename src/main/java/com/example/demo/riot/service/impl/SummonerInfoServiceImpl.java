@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,31 +145,59 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 	}
 	
 	public SummonerInfoVO getSummoner(String summoner){
-		String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/"+summoner;
 		ObjectMapper om = new ObjectMapper();
 		SummonerInfoVO siv = new SummonerInfoVO();
 		try {
-			Map<String,Object> summonerInfo =  om.readValue(rd.getReadData(url), Map.class);
-		
-			if(summonerInfo.get("status") != null) {//오류가 발생하면
+			// 1. account-v1: Riot ID(gameName#tagLine)로 PUUID 조회
+			String gameName = summoner;
+			String tagLine = "KR1"; // 기본 태그라인
+			if(summoner.contains("#")) {
+				String[] parts = summoner.split("#");
+				gameName = parts[0];
+				tagLine = parts[1];
+			}
+			String encodedGameName = URLEncoder.encode(gameName, "UTF-8");
+			String encodedTagLine = URLEncoder.encode(tagLine, "UTF-8");
+			String accountUrl = "https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
+					+ encodedGameName + "/" + encodedTagLine;
+			String accountResponse = rd.getReadData(accountUrl);
+			if(accountResponse == null) {
+				return null;
+			}
+			Map<String,Object> accountInfo = om.readValue(accountResponse, Map.class);
+			if(accountInfo.get("status") != null) {
+				return null;
+			}
+			String puuid = accountInfo.get("puuid").toString();
+
+			// 2. summoner-v4: PUUID로 소환사 정보 조회
+			String summonerUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/" + puuid;
+			String summonerResponse = rd.getReadData(summonerUrl);
+			if(summonerResponse == null) {
+				return null;
+			}
+			Map<String,Object> summonerInfo = om.readValue(summonerResponse, Map.class);
+			if(summonerInfo.get("status") != null) {
 				return null;
 			}
 			siv.setSummonerInfoId(summonerInfo.get("id").toString());
-			siv.setSummonerInfoAcid(summonerInfo.get("puuid").toString());
-			siv.setSummonerInfoName(summoner);
+			siv.setSummonerInfoAcid(puuid);
+			siv.setSummonerInfoName(gameName);
 			if((int)summonerInfo.get("profileIconId")<0) {
 				siv.setSummonerInfoIcon(0);
 			}else {
-				siv.setSummonerInfoIcon((int)summonerInfo.get("profileIconId"));	
+				siv.setSummonerInfoIcon((int)summonerInfo.get("profileIconId"));
 			}
 			siv.setSummonerInfoLevel((int)summonerInfo.get("summonerLevel"));
-			url = "https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/"+siv.getSummonerInfoId();
-			List<Map<String,Object>> summonerInfo2 =  om.readValue(rd.getReadData(url), List.class);
+
+			// 3. league-v4: 랭크 정보 조회
+			String leagueUrl = "https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/"+siv.getSummonerInfoId();
+			List<Map<String,Object>> summonerInfo2 = om.readValue(rd.getReadData(leagueUrl), List.class);
 			if(summonerInfo2.size() == 0) {
 				return siv;
 			}
 			for(Map<String,Object> sum : summonerInfo2) {
-				if("RANKED_SOLO_5x5".equals(sum.get("queueType"))) { // 솔로 랭크만 체크 
+				if("RANKED_SOLO_5x5".equals(sum.get("queueType"))) { // 솔로 랭크만 체크
 					siv.setSummonerInfoTier(sum.get("tier").toString());
 					siv.setSummonerInfoPoint((int)sum.get("leaguePoints"));
 					siv.setSummonerInfoLosses((int)sum.get("losses"));
@@ -175,13 +206,15 @@ public class SummonerInfoServiceImpl implements SummonerInfoService {
 					return siv;
 				}
 			}
-			
+
 		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	public List<List<Map<String,Object>>> getGamePage(String userName,int pageNo){
 		userName = userName.replace(" ", "");
 		SummonerInfoVO summoner = sim.selectSummonerInfo(userName);

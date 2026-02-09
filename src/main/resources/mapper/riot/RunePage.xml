@@ -13,7 +13,7 @@
  
   <insert id="insertRunePage"  parameterType="RunePageVO">
    <selectKey keyProperty="pkRunePage" resultType="int" order="BEFORE">
-    select seq_runepage.nextval FROM DUAL
+    select nextval('seq_runepage')
   </selectKey>
   	insert into rune_page(
   	    PK_RUNE_PAGE,
@@ -48,7 +48,7 @@
 		STATPERK1,
 		STATPERK2)
   	 values(
-     seq_runepage.currval,
+     #{pkRunePage},
 	 #{championInfoKey},
 	 #{matchId},
 	 #{perkSubStyle},

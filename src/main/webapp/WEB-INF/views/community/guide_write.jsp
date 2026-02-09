@@ -164,13 +164,13 @@ function text() {
 };
 function loginCheck(){
 	
-	if($('#userNum').val() <=1){
+	if($('#userNum').val() < 1){
 		alert('로그인하세욧~');
 		location.href = '/views/community/guideBoard';
 	}
 }
 function goWrite(){
-		if($('#userNum').val() <=1){
+		if($('#userNum').val() < 1){
 			alert('회원 가입 하고 작성해주세요');
 			location.href = '/views/community/guideBoard';
 			return

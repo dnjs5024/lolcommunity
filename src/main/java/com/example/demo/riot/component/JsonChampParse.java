@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonChampParse {
 	
-	@Autowired
+	@Resource
 	static ChampionInfoMapper cim;
 	
 	public static void main(String[] args) {

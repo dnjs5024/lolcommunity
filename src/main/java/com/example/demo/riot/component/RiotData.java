@@ -7,12 +7,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class RiotData {
+	@Value("${riot.api.key}")
+	private String riotApiKey;
 	public String getStaticReadData(String urlStr) {
 		URL url;
 		try {
@@ -41,19 +44,22 @@ public class RiotData {
 		return null;
 	}
 	public String getReadData(String urlStr) {
-		String X_Riot_Token = "RGAPI-2a115850-f1be-474f-bf51-bbb98b3b8314";
 		URL url;
 		try {
 			url = new URL(urlStr);
-			
+
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
-			con.setRequestProperty("X-Riot-Token", X_Riot_Token);
+			con.setRequestProperty("X-Riot-Token", riotApiKey);
 			int responseCode = con.getResponseCode();
 			BufferedReader br;
 			if (responseCode == 200) {
 				br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			} else {
+				if(con.getErrorStream() == null) {
+					log.error("API 요청 실패: responseCode={}, url={}", responseCode, urlStr);
+					return null;
+				}
 				br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
 			}
 			String inputLine;

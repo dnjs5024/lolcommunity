@@ -15,7 +15,7 @@
  
   <insert id="insertMatchItemSlot"  parameterType="MatchItemSlotVO" >
    <selectKey keyProperty="pkMatchItemSlot" resultType="int" order="BEFORE">
-    select seq_match_item_slot.nextval FROM DUAL
+    select nextval('seq_match_item_slot')
   </selectKey>
   	insert into match_item_slot values(
 	 #{matchItem0},
@@ -25,7 +25,7 @@
 	 #{matchItem4},
 	 #{matchItem5},
 	 #{matchItem6},
-	 seq_match_item_slot.currval
+	 #{pkMatchItemSlot}
 		 )
   </insert> 
 </mapper>
